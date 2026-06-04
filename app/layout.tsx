@@ -1,6 +1,8 @@
 import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
 import clsx from "clsx";
+import { ClerkProvider } from "@clerk/nextjs";
+import { esES } from "@clerk/localizations";
 
 import { Providers } from "./providers";
 import { siteConfig } from "@/config/site";
@@ -29,21 +31,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html suppressHydrationWarning lang="es">
-      <head />
-      <body
-        className={clsx(
-          "min-h-screen text-foreground bg-background font-sans antialiased",
-          fontSans.variable,
-        )}
-      >
-        <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
-          <div className="relative flex flex-col h-screen">
-            <Header />
-            <main className="flex-1 overflow-auto">{children}</main>
-          </div>
-        </Providers>
-      </body>
-    </html>
+    <ClerkProvider localization={esES}>
+      <html suppressHydrationWarning lang="es">
+        <head />
+        <body
+          className={clsx(
+            "min-h-screen text-foreground bg-background font-sans antialiased",
+            fontSans.variable,
+          )}
+        >
+          <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
+            <div className="relative flex flex-col h-screen">
+              <Header />
+              <main className="flex-1 overflow-auto">{children}</main>
+            </div>
+          </Providers>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

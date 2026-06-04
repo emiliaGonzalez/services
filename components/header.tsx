@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { Button } from "@heroui/react";
+import { Show, SignInButton, UserButton } from "@clerk/nextjs";
 
 export function Header() {
   const pathname = usePathname();
@@ -48,7 +49,16 @@ export function Header() {
           <Button variant="outline" size="sm">
             Ver como cliente
           </Button>
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-cyan-400" />
+          <Show when="signed-in">
+            <UserButton />
+          </Show>
+          <Show when="signed-out">
+            <SignInButton>
+              <Button variant="outline" size="sm">
+                Iniciar sesión
+              </Button>
+            </SignInButton>
+          </Show>
         </div>
       </div>
     </header>
