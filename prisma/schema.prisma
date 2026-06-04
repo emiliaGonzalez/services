@@ -1,0 +1,134 @@
+// Esquema de persistencia del catalogo de servicios.
+// Los IDs se generan en codigo con prefijo (cate_, serv_, pric_, rang_, grou_, optn_)
+// via lib/id.ts; por eso no usamos @default(cuid()).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  // Pooled (PgBouncer, puerto 6543) para runtime; directa (puerto 5432) para migraciones.
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// Unifica pricingModel ("fixed" | "per_person" | "per_unit") + variableByHeadcount del chat.
+enum PriceType {
+  FIXED
+  PAX
+  UNIT
+  FIXED_RANGE
+  PAX_RANGE
+  UNIT_RANGE
+}
+
+// Catalogo compartido de categorias. Precargado por prisma/seed.ts desde config/site.ts.
+model Category {
+  id       String    @id
+  slug     String    @unique
+  names    Json // { es: string, en: string, ...otros idiomas }
+  icon     String?
+  services Service[]
+
+  @@map("categories")
+}
+
+model Service {
+  id          String   @id
+  ownerId     String // Clerk userId
+  categoryId  String
+  name        String
+  description String   @default("")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  category     Category          @relation(fields: [categoryId], references: [id])
+  locations    ServiceLocation[]
+  photos       ServicePhoto[]
+  pricingId    String?           @unique
+  pricing      Pricing?          @relation("ServicePricing", fields: [pricingId], references: [id])
+  optionGroups OptionGroup[]
+
+  @@index([ownerId])
+  @@map("services")
+}
+
+model ServiceLocation {
+  id        String  @id
+  serviceId String
+  label     String
+  service   Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@index([serviceId])
+  @@map("service_locations")
+}
+
+model ServicePhoto {
+  id        String  @id
+  serviceId String
+  url       String
+  position  Int     @default(0)
+  service   Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@index([serviceId])
+  @@map("service_photos")
+}
+
+// Pricing pertenece a exactamente un Service (precio base) o a una Option.
+model Pricing {
+  id      String       @id
+  type    PriceType
+  ranges  PriceRange[]
+  service Service?     @relation("ServicePricing")
+  option  Option?      @relation("OptionPricing")
+
+  @@map("pricings")
+}
+
+// Punto(s) de precio. Para FIXED/PAX/UNIT hay una sola fila (low=0, high=null=infinito).
+// dependsOnOptionId: cuando el grupo depende de otro, cada precio aplica a una opcion del padre.
+model PriceRange {
+  id                String   @id
+  pricingId         String
+  low               Int      @default(0)
+  high              Int? // null = infinito
+  price             Decimal  @db.Decimal(12, 2)
+  dependsOnOptionId String?
+
+  pricing         Pricing @relation(fields: [pricingId], references: [id], onDelete: Cascade)
+  dependsOnOption Option? @relation("OptionDependentRanges", fields: [dependsOnOptionId], references: [id])
+
+  @@index([pricingId])
+  @@map("price_ranges")
+}
+
+model OptionGroup {
+  id               String  @id
+  serviceId        String
+  name             String
+  pricingMode      String // "fixed" | "per_pax"
+  dependsOnGroupId String? // pricing_depends_on_group
+
+  service        Service       @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  dependsOnGroup OptionGroup?  @relation("GroupDependency", fields: [dependsOnGroupId], references: [id])
+  dependents     OptionGroup[] @relation("GroupDependency")
+  options        Option[]
+
+  @@index([serviceId])
+  @@map("option_groups")
+}
+
+model Option {
+  id        String  @id
+  groupId   String
+  name      String
+  pricingId String? @unique
+
+  group           OptionGroup  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  pricing         Pricing?     @relation("OptionPricing", fields: [pricingId], references: [id])
+  dependentRanges PriceRange[] @relation("OptionDependentRanges")
+
+  @@index([groupId])
+  @@map("options")
+}

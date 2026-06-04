@@ -5,9 +5,17 @@
 	"private": true,
 	"scripts": {
 		"dev": "next dev",
-		"build": "next build",
+		"build": "prisma generate && next build",
 		"start": "next start",
-		"lint": "eslint --fix"
+		"lint": "eslint --fix",
+		"postinstall": "prisma generate",
+		"db:migrate": "dotenv -e .env.local -- prisma migrate deploy",
+		"db:migrate:dev": "dotenv -e .env.local -- prisma migrate dev",
+		"db:seed": "dotenv -e .env.local -- prisma db seed",
+		"db:studio": "dotenv -e .env.local -- prisma studio"
+	},
+	"prisma": {
+		"seed": "tsx prisma/seed.ts"
 	},
 	"dependencies": {
 		"@anthropic-ai/bedrock-sdk": "^0.29.2",
@@ -15,11 +23,13 @@
 		"@clerk/nextjs": "^7.4.3",
 		"@heroui/react": "3.1.0",
 		"@heroui/styles": "3.1.0",
+		"@prisma/client": "^6.2.1",
 		"canvas-confetti": "^1.9.4",
 		"clsx": "2.1.1",
 		"intl-messageformat": "10.7.16",
 		"leaflet": "^1.9.4",
 		"lucide-react": "^1.17.0",
+		"nanoid": "^5.0.9",
 		"next": "16.2.6",
 		"next-themes": "0.4.6",
 		"react": "19.2.6",
@@ -39,6 +49,7 @@
 		"@types/react-dom": "19.2.3",
 		"@typescript-eslint/eslint-plugin": "8.34.1",
 		"@typescript-eslint/parser": "8.34.1",
+		"dotenv-cli": "^11.0.0",
 		"eslint": "9.25.1",
 		"eslint-config-next": "16.2.0",
 		"eslint-config-prettier": "10.1.5",
@@ -52,8 +63,10 @@
 		"globals": "16.0.0",
 		"postcss": "8.5.6",
 		"prettier": "3.5.3",
+		"prisma": "^6.2.1",
 		"tailwind-variants": "3.2.2",
 		"tailwindcss": "4.1.11",
+		"tsx": "^4.19.2",
 		"typescript": "5.6.3"
 	}
 }

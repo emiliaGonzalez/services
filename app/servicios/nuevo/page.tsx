@@ -299,6 +299,33 @@ export default function NuevoServicioPage() {
       for (const tu of toolUses) {
         if (tu.type !== "tool_use") continue;
         if (tu.name === TOOL_NAMES.finishService) {
+          setThinking(true);
+          try {
+            const res = await fetch("/api/servicios", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(draftRef.current),
+            });
+
+            if (!res.ok) {
+              const data = (await res.json().catch(() => null)) as {
+                error?: string;
+              } | null;
+
+              setThinking(false);
+              setError(data?.error ?? "No se pudo guardar el servicio.");
+              setLoading(false);
+
+              return;
+            }
+          } catch {
+            setThinking(false);
+            setError("No se pudo guardar el servicio.");
+            setLoading(false);
+
+            return;
+          }
+
           const name = draftRef.current.name.trim();
 
           router.push(
