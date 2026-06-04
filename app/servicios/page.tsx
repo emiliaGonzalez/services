@@ -1,39 +1,9 @@
+import Link from "next/link";
 import { Chip } from "@heroui/react";
 import { auth } from "@clerk/nextjs/server";
 
 import { prisma } from "@/lib/prisma";
-
-type PricingWithRanges = {
-  type: string;
-  ranges: { price: unknown }[];
-} | null;
-
-function fmt(n: number): string {
-  return `$${n.toLocaleString("es-MX")}`;
-}
-
-function priceSummary(pricing: PricingWithRanges): string {
-  if (!pricing || !pricing.ranges.length) return "—";
-  const prices = pricing.ranges.map((r) => Number(r.price));
-  const min = Math.min(...prices);
-
-  switch (pricing.type) {
-    case "FIXED":
-      return `${fmt(min)} fijo`;
-    case "PAX":
-      return `${fmt(min)}/pax`;
-    case "UNIT":
-      return `${fmt(min)}/unidad`;
-    case "FIXED_RANGE":
-      return `Desde ${fmt(min)}`;
-    case "PAX_RANGE":
-      return `Desde ${fmt(min)}/pax`;
-    case "UNIT_RANGE":
-      return `Desde ${fmt(min)}/unidad`;
-    default:
-      return fmt(min);
-  }
-}
+import { priceSummary } from "@/lib/services/pricing";
 
 export default async function ServiciosPage() {
   const { userId } = await auth();
@@ -46,6 +16,7 @@ export default async function ServiciosPage() {
           category: true,
           locations: true,
           pricing: { include: { ranges: true } },
+          photos: { orderBy: { position: "asc" }, take: 1 },
         },
       })
     : [];
@@ -56,6 +27,7 @@ export default async function ServiciosPage() {
     return {
       id: s.id,
       name: s.name,
+      image: s.photos[0]?.url ?? null,
       category: names.es ?? "—",
       locations: s.locations.map((l) => l.label).join(", ") || "—",
       price: priceSummary(s.pricing),
@@ -121,25 +93,37 @@ export default async function ServiciosPage() {
               {services.map((svc) => (
                 <tr
                   key={svc.id}
-                  className="border-b border-divider hover:bg-foreground-50 transition-colors cursor-pointer"
+                  className="relative border-b border-divider hover:bg-foreground-50 transition-colors cursor-pointer"
                 >
                   <td className="py-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-foreground-100 flex items-center justify-center shrink-0">
-                        <svg
-                          className="w-4 h-4 text-foreground-300"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth={1.5}
-                          viewBox="0 0 24 24"
-                        >
-                          <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
+                      <div className="w-10 h-10 rounded-lg bg-foreground-100 flex items-center justify-center shrink-0 overflow-hidden">
+                        {svc.image ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            alt=""
+                            className="w-full h-full object-cover"
+                            src={svc.image}
+                          />
+                        ) : (
+                          <svg
+                            className="w-4 h-4 text-foreground-300"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth={1.5}
+                            viewBox="0 0 24 24"
+                          >
+                            <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                        )}
                       </div>
                       <div className="flex flex-col gap-0.5">
-                        <span className="text-sm font-medium text-foreground">
+                        <Link
+                          className="text-sm font-medium text-foreground no-underline before:absolute before:inset-0 before:content-['']"
+                          href={`/servicios/${svc.id}`}
+                        >
                           {svc.name}
-                        </span>
+                        </Link>
                       </div>
                     </div>
                   </td>
