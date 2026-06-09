@@ -24,6 +24,11 @@ export default async function ServiciosPage() {
   const services = rows.map((s) => {
     const names = (s.category?.names ?? {}) as { es?: string };
 
+    // Completo (Activo) si tiene ubicaciones, fotos y precio; si no, Borrador
+    // (p. ej. los importados de un PDF, sin ubicaciones ni fotos).
+    const complete =
+      s.locations.length > 0 && s.photos.length > 0 && s.pricing != null;
+
     return {
       id: s.id,
       name: s.name,
@@ -31,6 +36,7 @@ export default async function ServiciosPage() {
       category: names.es ?? "—",
       locations: s.locations.map((l) => l.label).join(", ") || "—",
       price: priceSummary(s.pricing),
+      active: complete,
     };
   });
 
@@ -137,8 +143,12 @@ export default async function ServiciosPage() {
                     {svc.price}
                   </td>
                   <td className="py-4">
-                    <Chip color="success" size="sm" variant="soft">
-                      Activo
+                    <Chip
+                      color={svc.active ? "success" : "warning"}
+                      size="sm"
+                      variant="soft"
+                    >
+                      {svc.active ? "Activo" : "Borrador"}
                     </Chip>
                   </td>
                   <td className="py-4 text-foreground-400">

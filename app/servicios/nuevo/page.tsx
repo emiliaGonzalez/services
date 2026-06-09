@@ -28,6 +28,7 @@ import { BottomSheet, NumberedOption } from "@/components/chat/bottom-sheet";
 import { ChatInput } from "@/components/chat/chat-input";
 import { PhotoUpload } from "@/components/chat/photo-upload";
 import { PricingFlow } from "@/components/chat/pricing-flow";
+import { setPendingPdf } from "@/lib/pending-import";
 import { serviceCategories } from "@/config/site";
 import { TOOL_NAMES, IMMEDIATE_TOOLS } from "@/lib/agent/tools";
 import type { MessageParam, ContentBlock, StreamEvent } from "@/lib/agent/types";
@@ -448,6 +449,16 @@ export default function NuevoServicioPage() {
     runTurn([{ role: "user", content: KICKOFF }]);
   }, [runTurn]);
 
+  // Ruta "subir documento": flujo de UI (sin agente). Guarda el PDF y va a procesar.
+  const handlePdf = useCallback(
+    (file: File | undefined) => {
+      if (!file || file.type !== "application/pdf") return;
+      setPendingPdf(file);
+      router.push("/servicios/importar");
+    },
+    [router],
+  );
+
   // Renderiza solo las tools estructuradas (modal sobre el input). Las demas se
   // responden por el input siempre visible.
   const renderStructuredSheet = () => {
@@ -503,14 +514,17 @@ export default function NuevoServicioPage() {
                     <label
                       key={opt.value}
                       className="flex items-center gap-3.5 w-full px-3 py-3.5 rounded-[10px] border border-dashed border-[#C4C7CC] bg-[#EEF0F3] hover:bg-[#E6E8EC] cursor-pointer transition-colors"
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        handlePdf(e.dataTransfer.files[0]);
+                      }}
                     >
                       <input
-                        multiple
+                        accept="application/pdf"
                         className="hidden"
                         type="file"
-                        onChange={() =>
-                          resolveTool(opt.value, "Documento subido")
-                        }
+                        onChange={(e) => handlePdf(e.target.files?.[0])}
                       />
                       <span className="shrink-0 w-7 h-7 rounded-full bg-[#1A1A1A] text-white flex items-center justify-center text-[13px] font-semibold">
                         {i + 1}

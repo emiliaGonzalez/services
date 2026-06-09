@@ -9326,13 +9326,16 @@
       "width": 1280,
       "height": 1200,
       "fill": "#FAFAFA",
-      "layout": "vertical",
+      "layout": "none",
       "children": [
         {
           "type": "frame",
           "id": "CDdDG",
+          "layoutPosition": "absolute",
+          "x": 0,
+          "y": 0,
           "name": "Header",
-          "width": "fill_container",
+          "width": 1280,
           "height": 56,
           "stroke": "#000000",
           "strokeWidth": {
@@ -9468,9 +9471,12 @@
         {
           "type": "frame",
           "id": "OCFx1",
+          "layoutPosition": "absolute",
+          "x": 0,
+          "y": 56,
           "name": "Content",
-          "width": "fill_container",
-          "height": "fill_container",
+          "width": 1280,
+          "height": 1080,
           "gap": 32,
           "padding": [
             32,
@@ -11000,61 +11006,93 @@
                       ]
                     }
                   ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "UAnMI",
+          "layoutPosition": "absolute",
+          "x": 0,
+          "y": 1130,
+          "name": "Floating Bar",
+          "width": 1280,
+          "height": 70,
+          "fill": "#FFFFFFCC",
+          "effect": {
+            "type": "background_blur",
+            "radius": 16
+          },
+          "padding": [
+            0,
+            40
+          ],
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "i6kgzs",
+              "name": "Status Hint",
+              "fill": "$text-secondary",
+              "content": "Los cambios se guardan como borrador automáticamente",
+              "fontFamily": "Inter",
+              "fontSize": 13,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "E9YTu",
+              "name": "Bar Right",
+              "gap": 12,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "Qll5n",
+                  "name": "Cancel Btn",
+                  "cornerRadius": 10,
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "padding": [
+                    10,
+                    24
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "LmMdZ",
+                      "name": "Cancel Txt",
+                      "fill": "$text-secondary",
+                      "content": "Cancelar",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    }
+                  ]
                 },
                 {
                   "type": "frame",
-                  "id": "hAXlv",
-                  "name": "Actions",
-                  "width": "fill_container",
-                  "layout": "vertical",
-                  "gap": 10,
+                  "id": "jQzVf",
+                  "name": "Save Btn",
+                  "fill": "$text-primary",
+                  "cornerRadius": 10,
+                  "padding": [
+                    10,
+                    28
+                  ],
                   "children": [
                     {
-                      "type": "frame",
-                      "id": "G8NKT",
-                      "name": "Save Btn",
-                      "width": "fill_container",
-                      "height": 44,
-                      "fill": "$text-primary",
-                      "cornerRadius": 10,
-                      "justifyContent": "center",
-                      "alignItems": "center",
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "M1Jes",
-                          "name": "Save Txt",
-                          "fill": "#FFFFFF",
-                          "content": "Guardar cambios",
-                          "fontFamily": "Inter",
-                          "fontSize": 14,
-                          "fontWeight": "600"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "frame",
-                      "id": "hVti0",
-                      "name": "Cancel Btn",
-                      "width": "fill_container",
-                      "height": 44,
-                      "cornerRadius": 10,
-                      "stroke": "$border",
-                      "strokeWidth": 1,
-                      "justifyContent": "center",
-                      "alignItems": "center",
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "xLeJH",
-                          "name": "Cancel Txt",
-                          "fill": "$text-secondary",
-                          "content": "Cancelar",
-                          "fontFamily": "Inter",
-                          "fontSize": 14,
-                          "fontWeight": "normal"
-                        }
-                      ]
+                      "type": "text",
+                      "id": "FM3q2",
+                      "name": "Save Txt",
+                      "fill": "#FFFFFF",
+                      "content": "Guardar cambios",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "600"
                     }
                   ]
                 }
